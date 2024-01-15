@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercicio Final</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <script>
+      const apiUrl = "https://api.jikan.moe/v4/top/anime";
+
+      async function fetchData() {
+        try {
+          const response = await fetch(apiUrl);
+          const data = await response.json();
+          return data;
+        } catch (error) {
+          console.error("Erro ao recuperar dados:", error);
+        }
+      }
+      // fetchData();
+
+      async function renderAnimeGrid() {
+        const animeData = await fetchData();
+
+        const highScoreAnimes = animeData.data.filter(
+          (anime) => anime.score > 9
+        );
+
+        // console.log(animeData);
+
+        //cria grid
+        const animeGrid = document.createElement("div");
+        animeGrid.classList.add("anime-grid");
+        //cria os cartões dos animes
+        highScoreAnimes.forEach((anime) => {
+          const animeCard = document.createElement("div");
+          animeCard.classList.add("anime-card");
+
+          //adiciona o titulo aos cartões
+          const title = document.createElement("h3");
+          title.textContent = anime.title;
+
+          //adiciona as imagens aos cartões
+          const image = document.createElement("img");
+
+          image.src = anime.images.jpg.image_url;
+          image.alt = anime.title;
+          image.classList.add("anime-image");
+
+          animeCard.appendChild(title);
+          animeCard.appendChild(image);
+          // Adiciona um evento de clique à imagem
+          animeCard.addEventListener("click", () => showDetails(anime));
+
+          animeGrid.appendChild(animeCard);
+        });
+
+        document.body.prepend(animeGrid);
+      }
+
+      // Chama a função para mostrar a grid de animes
+      renderAnimeGrid();
+      function showDetails(anime, animeCard) {
+        // Verifica se há uma descrição existente
+        const existingDetailsContainer =
+          document.querySelector(".details-container");
+        if (existingDetailsContainer) {
+          document.body.removeChild(existingDetailsContainer);
+        }
+
+        // Cria a div de detalhes
+        const detailsContainer = document.createElement("div");
+        detailsContainer.classList.add("details-container");
+
+        const detailsContent = document.createElement("div");
+        detailsContent.classList.add("details-content");
+
+        // Adiciona os detalhes à div de detalhes
+        const name = document.createElement("p");
+        name.textContent = `Nome: ${anime.title}`;
+
+        const rating = document.createElement("p");
+        rating.textContent = `Rating: ${anime.score}`;
+
+        const releaseDate = document.createElement("p");
+        releaseDate.textContent = `Data de Lançamento: ${anime.start_date}`;
+
+        const genres = document.createElement("p");
+        genres.textContent = `Géneros: ${anime.genres
+          .map((genre) => genre.name)
+          .join(", ")}`;
+
+        // Botão para fechar os detalhes
+        const closeButton = document.createElement("button");
+        closeButton.textContent = "Fechar";
+        closeButton.addEventListener("click", () => {
+          document.body.removeChild(detailsContainer);
+        });
+
+        // Adiciona os elementos à div de detalhes
+        detailsContent.appendChild(name);
+        detailsContent.appendChild(rating);
+        detailsContent.appendChild(releaseDate);
+        detailsContent.appendChild(genres);
+        detailsContent.appendChild(closeButton);
+
+        detailsContainer.appendChild(detailsContent);
+
+        // Adiciona a div de detalhes ao body
+        document.body.appendChild(detailsContainer);
+      }
+
+      // Função para obter o ano atual
+      function getYear() {
+        return new Date().getFullYear();
+      }
+
+      // Criar Footer
+      const footer = document.createElement("div");
+      footer.classList.add("footer");
+
+      // Adiciona o conteúdo à div
+      footer.textContent = `© ${getYear()} André Oliveira`;
+
+      // Adiciona a div ao body
+      document.body.appendChild(footer);
+    </script>
+  </body>
+</html>
